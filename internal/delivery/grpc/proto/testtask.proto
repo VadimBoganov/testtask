@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package proto.TestTask;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "pkg/proto";
+
+service TestTask {
+  rpc FetchFile(FetchFileRequest) returns (stream FetchFileResponse);
+  rpc GetProducts(ProductsRequest) returns (ProductsResponse);
+}
+
+message FetchFileRequest{
+  string url = 1;
+}
+
+message FetchFileResponse{
+  bytes fileChunk = 1;
+}
+
+message ProductsRequest{
+  Paginate paginate = 1;
+  Sort sort = 2;
+}
+
+message Paginate{
+  int32 limit = 1;
+  int32 page = 2;
+}
+
+message Sort{
+  string fieldName = 1;
+  int32 sortType = 2;
+}
+
+message ProductsResponse{
+  repeated Product Products = 1;
+}
+
+message Product{
+  string id = 1;
+  string name = 2;
+  float price = 3;
+  int32 priceChangeCount = 4;
+  google.protobuf.Timestamp lastUpdateTime = 5;
+}
