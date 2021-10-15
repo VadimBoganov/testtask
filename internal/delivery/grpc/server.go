@@ -22,7 +22,7 @@ func NewServer(service *services.Service) *Server{
 func (s *Server) FetchFile(req *p.FetchFileRequest, stream p.TestTask_FetchFileServer) error{
 	bufferSize := 64 * 1024
 
-	fileName, err := s.service.FetchFile(req.Url)
+	fileName, err := s.service.FetchFile(context.TODO(), req.Url)
 	if err != nil{
 		return err
 	}

@@ -5,6 +5,7 @@ import (
 	"encoding/csv"
 	"github.com/VadimBoganov/testtask/internal/domain"
 	"github.com/VadimBoganov/testtask/internal/repository"
+	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"io"
 	"net/http"
@@ -23,8 +24,8 @@ func NewProductService(repo repository.Product) *ProductService{
 	}
 }
 
-func (s *ProductService) FetchFile(url string) (string, error){
-	fileName := ""
+func (s *ProductService) FetchFile(ctx context.Context, url string) (string, error){
+	fileName := viper.GetString("csv.fileName")
 	downloadFile(url, fileName)
 
 	products, err := parseCsv(fileName)
@@ -33,7 +34,7 @@ func (s *ProductService) FetchFile(url string) (string, error){
 	}
 
 	dbProducts := makeDBProducts(products)
-	err = s.repo.Insert(context.Background(), dbProducts)
+	err = s.repo.Insert(ctx, dbProducts)
 
 	return fileName, err
 }

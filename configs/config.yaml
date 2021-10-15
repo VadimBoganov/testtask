@@ -1,0 +1,12 @@
+monogodb:
+  ennpoints:
+    -host: "localhost"
+     port: 27017
+  max-pool-size: 20
+  databaseName: "products"
+
+csv:
+  file-name: "file.csv"
+
+grpc-server:
+  port: 4151

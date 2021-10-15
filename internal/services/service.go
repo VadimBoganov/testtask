@@ -7,7 +7,7 @@ import (
 )
 
 type Product interface {
-	FetchFile(url string) (string, error)
+	FetchFile(ctx context.Context, url string) (string, error)
 	GetProducts(ctx context.Context, limit, page int32, fieldName string, sortType byte) ([]domain.DBProduct, error)
 }
 
