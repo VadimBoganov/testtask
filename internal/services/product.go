@@ -8,7 +8,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"io"
 	"net/http"
-	u "net/url"
 	"os"
 	"strconv"
 	"time"
@@ -25,10 +24,7 @@ func NewProductService(repo repository.Product) *ProductService{
 }
 
 // FetchFile TODO:make depends for file downloader and csv parser(refactoring)
-func (s *ProductService) FetchFile(ctx context.Context, url string) error{
-	parsedUrl, err := u.Parse(url)
-	fileName := parsedUrl.Path[1:]
-
+func (s *ProductService) FetchFile(ctx context.Context, url, fileName string) error{
 	DownloadFile(url, fileName)
 
 	products, err := ParseCsv(fileName)
@@ -36,7 +32,7 @@ func (s *ProductService) FetchFile(ctx context.Context, url string) error{
 		return err
 	}
 
-	dbProducts := makeDBProducts(products)
+	dbProducts := MakeDBProducts(products)
 	err = s.repo.Insert(ctx, dbProducts)
 
 	return err
@@ -47,7 +43,7 @@ func (s *ProductService) GetProducts(ctx context.Context, limit, page int32, fie
 }
 
 func DownloadFile(url, fileName string) error{
-	resp, err := http.Get(url)
+	resp, err := http.Get(url + fileName)
 	if err != nil{
 		return err
 	}
@@ -96,7 +92,7 @@ func ParseCsv(path string) ([]domain.Product, error){
 	}
 }
 
-func makeDBProducts(products []domain.Product) []domain.DBProduct{
+func MakeDBProducts(products []domain.Product) []domain.DBProduct{
 	dbProducts := make(map[string]domain.DBProduct)
 
 	count := 0

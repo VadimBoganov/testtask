@@ -24,7 +24,7 @@ func (s *Server) FetchFile(req *p.FetchFileRequest, stream p.TestTask_FetchFileS
 	bufferSize := 64 * 1024
 
 	fileName := viper.GetString("csv.fileName")
-	err := s.service.FetchFile(context.TODO(), req.Url)
+	err := s.service.FetchFile(context.TODO(), req.Url, fileName)
 	if err != nil{
 		return err
 	}

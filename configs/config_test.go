@@ -22,7 +22,6 @@ func TestConfig_InitConfig_Integration(t *testing.T){
 	}
 
 	err := config.InitConfig()
-
 	assert.NoErrorf(t, err, "Error occurred while initialization config", err)
 }
 

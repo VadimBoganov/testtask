@@ -53,7 +53,13 @@ func NewProductsRepo(db *mongo.Database) *ProductsRepo{
 }
 
 func (r *ProductsRepo) Insert(ctx context.Context, products []domain.DBProduct) error {
-	_, err := r.collection.InsertMany(ctx, []interface{}{products})
+	var i []interface{}
+
+	for _, prod := range products {
+		i = append(i, prod)
+	}
+
+	_, err := r.collection.InsertMany(ctx, i)
 	return err
 }
 
