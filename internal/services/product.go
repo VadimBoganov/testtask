@@ -5,10 +5,10 @@ import (
 	"encoding/csv"
 	"github.com/VadimBoganov/testtask/internal/domain"
 	"github.com/VadimBoganov/testtask/internal/repository"
-	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"io"
 	"net/http"
+	u "net/url"
 	"os"
 	"strconv"
 	"time"
@@ -24,26 +24,29 @@ func NewProductService(repo repository.Product) *ProductService{
 	}
 }
 
-func (s *ProductService) FetchFile(ctx context.Context, url string) (string, error){
-	fileName := viper.GetString("csv.fileName")
-	downloadFile(url, fileName)
+// FetchFile TODO:make depends for file downloader and csv parser(refactoring)
+func (s *ProductService) FetchFile(ctx context.Context, url string) error{
+	parsedUrl, err := u.Parse(url)
+	fileName := parsedUrl.Path[1:]
 
-	products, err := parseCsv(fileName)
+	DownloadFile(url, fileName)
+
+	products, err := ParseCsv(fileName)
 	if err != nil{
-		return fileName, err
+		return err
 	}
 
 	dbProducts := makeDBProducts(products)
 	err = s.repo.Insert(ctx, dbProducts)
 
-	return fileName, err
+	return err
 }
 
 func (s *ProductService) GetProducts(ctx context.Context, limit, page int32, fieldName string, sortType byte) ([]domain.DBProduct, error){
-	return s.GetProducts(ctx, limit, page, fieldName, sortType)
+	return s.repo.Get(ctx, int(limit), int(page), fieldName, sortType)
 }
 
-func downloadFile(url, fileName string) error{
+func DownloadFile(url, fileName string) error{
 	resp, err := http.Get(url)
 	if err != nil{
 		return err
@@ -60,8 +63,7 @@ func downloadFile(url, fileName string) error{
 	return  err
 }
 
-//think about interface{}
-func parseCsv(path string) ([]domain.Product, error){
+func ParseCsv(path string) ([]domain.Product, error){
 	file, err := os.Open(path)
 	if err != nil{
 		return nil, err
@@ -95,7 +97,7 @@ func parseCsv(path string) ([]domain.Product, error){
 }
 
 func makeDBProducts(products []domain.Product) []domain.DBProduct{
-	var dbProducts map[string]domain.DBProduct
+	dbProducts := make(map[string]domain.DBProduct)
 
 	count := 0
 	for count < len(products) {
@@ -115,6 +117,7 @@ func makeDBProducts(products []domain.Product) []domain.DBProduct{
 			}
 			dbProducts[products[count].Name] = dbProduct
 		}
+		count++
 	}
 
 	result := make([]domain.DBProduct, 0, len(dbProducts))

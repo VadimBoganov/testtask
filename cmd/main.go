@@ -14,22 +14,23 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc"
 	"net"
+	"strconv"
 )
 
 func main() {
-	if err := initEnv(); err != nil{
+	if err := godotenv.Load("../.env"); err != nil{
 		log.Fatalf("Error occured while initialize env variables: %s", err.Error())
 	}
 
 	var config configs.Config
 
-	if err := initConfig(&config); err != nil {
+	if err := config.InitConfig(); err != nil {
 		log.Fatalf("Error occured while initialize config: %s", err.Error())
 	}
 
 	ctx := context.Background()
 
-	client, err := mongo.Connect(ctx, options.Client().ApplyURI(viper.GetString(config.MakeMongoDBUri())))
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(config.MakeMongoDBUri()))
 	if err != nil{
 		log.Fatalf("Error occured while connect to mongodb: %s", err.Error())
 	}
@@ -47,7 +48,7 @@ func main() {
 	server := g.NewServer(service)
 
 	port := viper.GetInt("grpc-server.port")
-	lis, err := net.Listen("tcp", string(port))
+	lis, err := net.Listen("tcp", strconv.Itoa(port))
 	if err != nil{
 		log.Fatalf("Error occured while grpc server listen port: %d  %s", port, err.Error())
 	}
@@ -59,19 +60,4 @@ func main() {
 	if err := grpcServer.Serve(lis); err != nil{
 		log.Fatalf("Error occured while runnig grpc server: %s", err.Error())
 	}
-}
-
-func initConfig(config *configs.Config) error{
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath("./configs")
-	if err := viper.ReadInConfig(); err != nil{
-		return err
-	}
-
-	return viper.Unmarshal(&config)
-}
-
-func initEnv() error{
-	return godotenv.Load()
 }

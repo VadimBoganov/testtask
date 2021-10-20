@@ -1,14 +1,46 @@
 package configs
 
 import (
+	"github.com/spf13/viper"
 	"os"
+	"strconv"
 	"strings"
 )
 
 type Config struct {
-	mongoDB MongoDB
-	csv Csv
-	grpcServer GrpcServer
+	MongoDB MongoDB `mapstructure:"mongodb"`
+	Csv Csv
+	GrpcServer GrpcServer `mapstructure:"grpc_server"`
+}
+
+type MongoDB struct {
+	Endpoints []Endpoint
+	MaxPoolSize int `mapstructure:"max_pool_size"`
+	DatabaseName string `mapstructure:"database_name"`
+}
+
+type Endpoint struct {
+	Host string
+	Port int
+}
+
+type Csv struct {
+	FileName string `mapstructure:"file_name"`
+}
+
+type GrpcServer struct {
+	Port int
+}
+
+func (c *Config) InitConfig() error{
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(".")
+	if err := viper.ReadInConfig(); err != nil{
+		return err
+	}
+
+	return viper.Unmarshal(&c)
 }
 
 func (c *Config) MakeMongoDBUri() string{
@@ -25,7 +57,7 @@ func (c *Config) MakeMongoDBUri() string{
 		sb.WriteString("@")
 	}
 
-	endpoints := c.mongoDB.endpoints
+	endpoints := c.MongoDB.Endpoints
 
 	if len(endpoints) > 1 {
 		for _, endpoint := range endpoints {
@@ -41,7 +73,7 @@ func (c *Config) MakeMongoDBUri() string{
 	}
 
 	sb.WriteString("/?maxPoolSize=")
-	sb.WriteString(string(c.mongoDB.maxPoolSize))
+	sb.WriteString(strconv.Itoa(c.MongoDB.MaxPoolSize))
 
 	if len(endpoints) > 1{
 		sb.WriteString("&replicaSet=RS")
@@ -51,26 +83,8 @@ func (c *Config) MakeMongoDBUri() string{
 }
 
 func addEndpoint(endpoint Endpoint, sb *strings.Builder) {
-	sb.WriteString(endpoint.host)
+	sb.WriteString(endpoint.Host)
 	sb.WriteString(":")
-	sb.WriteString(string(endpoint.port))
+	sb.WriteString(strconv.Itoa(endpoint.Port))
 }
 
-type MongoDB struct {
-	endpoints []Endpoint
-	maxPoolSize int
-	databaseName string
-}
-
-type Endpoint struct {
-	host string
-	port int
-}
-
-type Csv struct {
-	fileName string
-}
-
-type GrpcServer struct {
-	port int
-}

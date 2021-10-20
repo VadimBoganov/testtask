@@ -1,12 +1,12 @@
-monogodb:
-  ennpoints:
-    -host: "localhost"
-     port: 27017
-  max-pool-size: 20
-  databaseName: "products"
+mongodb:
+  endpoints:
+    - host: "localhost"
+      port: 27017
+  max_pool_size: 20
+  database_name: "products"
 
 csv:
-  file-name: "file.csv"
+  file_name: "file.csv"
 
-grpc-server:
+grpc_server:
   port: 4151
