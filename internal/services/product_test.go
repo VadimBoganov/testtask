@@ -31,8 +31,9 @@ func TestProductService_FetchFile_Integration(t *testing.T) {
 	if testing.Short(){
 		t.Skip()
 	}
-	err := productService.FetchFile(context.TODO(), URL, FILE_NAME)
+	fileName, err := productService.FetchFile(context.TODO(), URL + FILE_NAME)
 	assert.NoErrorf(t, err, "Error occurred while fetch file", err)
+	assert.Greater(t, len(fileName), 0)
 }
 
 func TestProductService_GetProducts(t *testing.T) {
@@ -49,15 +50,16 @@ func TestDownloadFile_Integration(t *testing.T) {
 	if testing.Short(){
 		t.Skip()
 	}
-	err := DownloadFile(URL, FILE_NAME)
+	fileName, err := DownloadFile(URL + FILE_NAME)
 	assert.NoErrorf(t, err, "Error occurred while download file", err)
+	assert.Greater(t, len(fileName), 0)
 }
 
 func TestParseCsv_Integration(t *testing.T) {
 	if testing.Short(){
 		t.Skip()
 	}
-	DownloadFile(URL, FILE_NAME)
+	DownloadFile(URL + FILE_NAME)
 	products, err := ParseCsv(FILE_NAME)
 	assert.NoErrorf(t, err, "Error occurred while parse csv file", err)
 	assert.NotNil(t, products)

@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"io"
 	"net/http"
+	u "net/url"
 	"os"
 	"strconv"
 	"time"
@@ -24,39 +25,48 @@ func NewProductService(repo repository.Product) *ProductService{
 }
 
 // FetchFile TODO:make depends for file downloader and csv parser(refactoring)
-func (s *ProductService) FetchFile(ctx context.Context, url, fileName string) error{
-	DownloadFile(url, fileName)
+func (s *ProductService) FetchFile(ctx context.Context, url string) (string, error){
+	fileName, err := DownloadFile(url)
+	if err != nil{
+		return fileName, err
+	}
 
 	products, err := ParseCsv(fileName)
 	if err != nil{
-		return err
+		return fileName, err
 	}
 
 	dbProducts := MakeDBProducts(products)
 	err = s.repo.Insert(ctx, dbProducts)
 
-	return err
+	return fileName, err
 }
 
-func (s *ProductService) GetProducts(ctx context.Context, limit, page int32, fieldName string, sortType byte) ([]domain.DBProduct, error){
+func (s *ProductService) GetProducts(ctx context.Context, limit, page int32, fieldName string, sortType int) ([]domain.DBProduct, error){
 	return s.repo.Get(ctx, int(limit), int(page), fieldName, sortType)
 }
 
-func DownloadFile(url, fileName string) error{
-	resp, err := http.Get(url + fileName)
+func DownloadFile(url string) (string, error){
+	resp, err := http.Get(url)
 	if err != nil{
-		return err
+		return "", err
 	}
 	defer resp.Body.Close()
 
+	parsedUrl, err := u.Parse(url)
+	if err != nil{
+		return "", err
+	}
+	fileName := parsedUrl.Path[1:]
+
 	out, err := os.Create(fileName)
 	if err != nil{
-		return err
+		return "", err
 	}
 	defer out.Close()
 
 	_, err = io.Copy(out, resp.Body)
-	return  err
+	return fileName, err
 }
 
 func ParseCsv(path string) ([]domain.Product, error){

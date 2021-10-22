@@ -9,7 +9,6 @@ import (
 
 type Config struct {
 	MongoDB MongoDB `mapstructure:"mongodb"`
-	Csv Csv
 	GrpcServer GrpcServer `mapstructure:"grpc_server"`
 }
 
@@ -22,10 +21,6 @@ type MongoDB struct {
 type Endpoint struct {
 	Host string
 	Port int
-}
-
-type Csv struct {
-	FileName string `mapstructure:"file_name"`
 }
 
 type GrpcServer struct {

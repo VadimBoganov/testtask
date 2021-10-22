@@ -9,7 +9,6 @@ import (
 	p "github.com/VadimBoganov/testtask/pkg/proto"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc"
@@ -41,14 +40,14 @@ func main() {
 		}
 	}()
 
-	database := client.Database(viper.GetString("mongodb.databaseName"))
+	database := client.Database(config.MongoDB.DatabaseName)
 
 	repository := repo.NewRepository(database)
 	service := services.NewService(repository)
 	server := g.NewServer(service)
 
-	port := viper.GetInt("grpc-server.port")
-	lis, err := net.Listen("tcp", strconv.Itoa(port))
+	port := config.GrpcServer.Port
+	lis, err := net.Listen("tcp", ":" + strconv.Itoa(port))
 	if err != nil{
 		log.Fatalf("Error occured while grpc server listen port: %d  %s", port, err.Error())
 	}

@@ -8,7 +8,7 @@ import (
 )
 
 type Product interface {
-	Get(ctx context.Context, limit, page int, fieldName string, sortType byte) ([]domain.DBProduct, error)
+	Get(ctx context.Context, limit, page int, fieldName string, sortType int) ([]domain.DBProduct, error)
 	Insert(ctx context.Context, products []domain.DBProduct) error
 }
 

@@ -8,7 +8,6 @@ type Product struct {
 }
 
 type DBProduct struct {
-	ID               primitive.ObjectID
 	Product          Product
 	PriceChangeCount int
 	LastUpdateTime primitive.Timestamp

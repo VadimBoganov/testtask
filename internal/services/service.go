@@ -7,8 +7,8 @@ import (
 )
 
 type Product interface {
-	FetchFile(ctx context.Context, url, fileName string) error
-	GetProducts(ctx context.Context, limit, page int32, fieldName string, sortType byte) ([]domain.DBProduct, error)
+	FetchFile(ctx context.Context, url string) (string, error)
+	GetProducts(ctx context.Context, limit, page int32, fieldName string, sortType int) ([]domain.DBProduct, error)
 }
 
 type Service struct {

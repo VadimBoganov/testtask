@@ -2,9 +2,9 @@ package grpc
 
 import (
 	"context"
+	"encoding/hex"
 	"github.com/VadimBoganov/testtask/internal/services"
 	p "github.com/VadimBoganov/testtask/pkg/proto"
-	"github.com/spf13/viper"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"io"
@@ -23,8 +23,7 @@ func NewServer(service *services.Service) *Server{
 func (s *Server) FetchFile(req *p.FetchFileRequest, stream p.TestTask_FetchFileServer) error{
 	bufferSize := 64 * 1024
 
-	fileName := viper.GetString("csv.fileName")
-	err := s.service.FetchFile(context.TODO(), req.Url, fileName)
+	fileName, err := s.service.FetchFile(context.TODO(), req.Url)
 	if err != nil{
 		return err
 	}
@@ -55,7 +54,7 @@ func (s *Server) FetchFile(req *p.FetchFileRequest, stream p.TestTask_FetchFileS
 }
 
 func (s *Server) GetProducts(ctx context.Context, req *p.ProductsRequest) (*p.ProductsResponse, error){
-	products, err := s.service.GetProducts(ctx, req.Paginate.GetLimit(), req.Paginate.Page, req.Sort.GetFieldName(), byte(req.Sort.GetSortType()))
+	products, err := s.service.GetProducts(ctx, req.Paginate.GetLimit(), req.Paginate.Page, req.Sort.GetFieldName(), int(req.Sort.GetSortType()))
 	if err != nil{
 		return nil, err
 	}
@@ -64,7 +63,7 @@ func (s *Server) GetProducts(ctx context.Context, req *p.ProductsRequest) (*p.Pr
 
 	for _, prod := range products{
 		productResponse = append(productResponse,
-			createProductResponse(prod.ID, prod.Product.Name, prod.Product.Price, prod.PriceChangeCount, prod.LastUpdateTime))
+			createProductResponse(prod.Product.Name, prod.Product.Price, prod.PriceChangeCount, prod.LastUpdateTime))
 	}
 
 	return &p.ProductsResponse{
@@ -72,9 +71,9 @@ func (s *Server) GetProducts(ctx context.Context, req *p.ProductsRequest) (*p.Pr
 	}, nil
 }
 
-func createProductResponse(id primitive.ObjectID, name string, price float64, count int, lastUpdateTime primitive.Timestamp) *p.Product{
+func createProductResponse(name string, price float64, count int, lastUpdateTime primitive.Timestamp) *p.Product{
 	return &p.Product{
-		Id: id.Hex(),
+		Id: hex.EncodeToString([]byte(name)),
 		Name: name,
 		Price: float32(price),
 		PriceChangeCount: int32(count),

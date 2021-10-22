@@ -10,7 +10,7 @@ import (
 
 type Sort struct{
 	fieldName string
-	sortType byte
+	sortType int
 }
 
 type Paginate struct {
@@ -18,7 +18,7 @@ type Paginate struct {
 	page int64
 }
 
-func newSort(fieldName string, sortType byte) *Sort{
+func newSort(fieldName string, sortType int) *Sort{
 	return &Sort{
 		fieldName: fieldName,
 		sortType: sortType,
@@ -38,8 +38,8 @@ func (p *Paginate) setPaginateOpts() *options.FindOptions{
 	return &options.FindOptions{Limit: &limit, Skip: &skip}
 }
 
-func (s *Sort) setSortOpts(opts options.FindOptions) *options.FindOptions{
-	return opts.SetSort(bson.D{{s.fieldName, s.sortType}})
+func (s *Sort) setSortOpts(opts *options.FindOptions){
+	opts.SetSort(bson.D{{s.fieldName, s.sortType}})
 }
 
 type ProductsRepo struct {
@@ -54,7 +54,6 @@ func NewProductsRepo(db *mongo.Database) *ProductsRepo{
 
 func (r *ProductsRepo) Insert(ctx context.Context, products []domain.DBProduct) error {
 	var i []interface{}
-
 	for _, prod := range products {
 		i = append(i, prod)
 	}
@@ -63,11 +62,11 @@ func (r *ProductsRepo) Insert(ctx context.Context, products []domain.DBProduct) 
 	return err
 }
 
-func (r *ProductsRepo) Get(ctx context.Context, limit, page int, fieldName string, sortType byte) ([]domain.DBProduct, error) {
+func (r *ProductsRepo) Get(ctx context.Context, limit, page int, fieldName string, sortType int) ([]domain.DBProduct, error) {
 	result := make([]domain.DBProduct, 0)
 
 	opts := newPaginate(limit, page).setPaginateOpts()
-	newSort(fieldName, sortType).setSortOpts(*opts)
+	newSort(fieldName, sortType).setSortOpts(opts)
 
 	curr, err := r.collection.Find(ctx, bson.D{}, opts)
 

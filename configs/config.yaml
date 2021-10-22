@@ -1,12 +1,9 @@
 mongodb:
   endpoints:
-    - host: "localhost"
-      port: 27017
+    - host: "db"
+      port: 27018
   max_pool_size: 20
   database_name: "products"
-
-csv:
-  file_name: "file.csv"
 
 grpc_server:
   port: 4151
