@@ -21,7 +21,7 @@ func TestConfig_InitConfig_Integration(t *testing.T){
 		t.Skip()
 	}
 
-	err := config.InitConfig()
+	err := config.InitConfig(".")
 	assert.NoErrorf(t, err, "Error occurred while initialization config", err)
 }
 
@@ -32,7 +32,7 @@ func TestConfig_MakeMongoDBUri_Integration(t *testing.T) {
 
 	var sb strings.Builder
 
-	config.InitConfig()
+	config.InitConfig(".")
 
 	sb.WriteString("mongodb://")
 	userName, _ := os.LookupEnv("MONGODB_USERNAME")

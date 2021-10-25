@@ -1,2 +1,10 @@
-FROM httpd:2.4
-COPY ./test_file.csv /usr/local/apache2/htdocs/
+FROM golang:1.16-alpine
+RUN go version
+ENV GOPATH=/
+
+COPY ./ ./
+
+RUN go mod download
+RUN go build -o ./.bin/app ./cmd/main.go
+
+CMD ["./.bin/app"]

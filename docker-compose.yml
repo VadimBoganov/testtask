@@ -1,0 +1,30 @@
+version: '3.9'
+
+services:
+  testtask:
+    build: ./
+    command: ./.bin/app
+    ports:
+      - 4151:4151
+    depends_on:
+      - httpd
+      - db
+
+  httpd:
+    build:
+      context: .
+      dockerfile: Dockerfile.httpd
+    restart: always
+    ports:
+      - 8080:80
+
+  db:
+    restart: always
+    image: mongo
+    ports:
+      - 27018:27017
+    volumes:
+      - ./.database:/data/db
+    environment:
+      - MONGODB_USERNAME=admin
+      - MONGODB_PASSWORD=vErbatim12,

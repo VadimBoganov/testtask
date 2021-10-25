@@ -1,4 +1,7 @@
-/.idea
+/.idea/
+/.bin/
+/.database/
+
 .env
-/.bin
 cover.out
+

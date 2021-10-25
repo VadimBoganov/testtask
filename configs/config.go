@@ -27,10 +27,10 @@ type GrpcServer struct {
 	Port int
 }
 
-func (c *Config) InitConfig() error{
+func (c *Config) InitConfig(path string) error{
 	viper.SetConfigName("config")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
+	viper.AddConfigPath(path)
 	if err := viper.ReadInConfig(); err != nil{
 		return err
 	}

@@ -17,13 +17,13 @@ import (
 )
 
 func main() {
-	if err := godotenv.Load("../.env"); err != nil{
+	if err := godotenv.Load(); err != nil{
 		log.Fatalf("Error occured while initialize env variables: %s", err.Error())
 	}
 
 	var config configs.Config
 
-	if err := config.InitConfig(); err != nil {
+	if err := config.InitConfig("./configs"); err != nil {
 		log.Fatalf("Error occured while initialize config: %s", err.Error())
 	}
 
