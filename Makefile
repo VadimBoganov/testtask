@@ -2,7 +2,7 @@ build:
 	go mod download && CGO_ENABLED=0 GOOS=windows go build -o ./.bin/app ./cmd/main.go
 
 run:
-	docker-compose up --remove-orphans
+	docker-compose up --remove-orphans --scale testtask=2
 
 export HTTP_SERVER_CONTAINER_NAME=apache_test
 export MONGODB_CONTAINER_NAME=mongodb_test
