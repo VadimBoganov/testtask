@@ -26,8 +26,8 @@ services:
     volumes:
       - ./.database:/data/db
     environment:
-      - MONGODB_USERNAME=admin
-      - MONGODB_PASSWORD=vErbatim12,
+      - MONGODB_USERNAME=${MONGODB_USERNAME}
+      - MONGODB_PASSWORD=${MONGODB_PASSWORD}
 
   nginx:
     image: nginx:latest
